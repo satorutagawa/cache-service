@@ -1,24 +1,23 @@
-Cache service
+# Cache service
 
-Prerequisite:
-# * python (for tests)
+## Prerequisite:
 
-Install dependencies:
+## Install dependencies:
  * npm i
 
-Usage:
+## Usage:
  * npm run dev
 
-Env setup using this tutorial:
+## Env setup using this tutorial:
  * https://bit.ly/3lIv7BU
    * (Dockerization not done)
 
-Features:
+## Features:
  * add items
  * remove items
  * fetch items
 
-Key Components
+## Key Components
  * cache
    * Data Structure
      * dictionary with item_id as primary key
@@ -29,7 +28,7 @@ Key Components
    * GET /list/
      * returns array of item_ids
 
-Features not considered for assignment
+## Features not considered for assignment
  * Database
    * All data is destroyed when server is restarted
  * Updating of data
