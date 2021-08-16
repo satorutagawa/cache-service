@@ -8,7 +8,7 @@
 ## Usage:
  * npm run dev
 
-Env setup using this tutorial:
+## Env setup using this tutorial:
  * Initial setup
    * https://bit.ly/3lIv7BU
      * (Dockerization not done)
@@ -20,7 +20,12 @@ Env setup using this tutorial:
  * remove items
  * fetch items
 
-Key Components
+## Features not considered for assignment
+ * Updating of data
+ * Fetch of data based on key other than item_id
+ * Check proper insert/delete
+
+## Key Components
  * Database
    * Simple table with 2 columns
      * id (int)
@@ -37,19 +42,14 @@ Key Components
    * GET /list/
      * returns array of item_ids
 
-Features not considered for assignment
- * Updating of data
- * Fetch of data based on key other than item_id
- * Check proper insert/delete
-
-Main considerations
+## Main considerations
  * CAP Theorem
    * trade off between Consistency and Availability when Partition tolerance exists
      * Availability is chosen here
  * Lock cache during write
    * read during write needs to be blocked
 
-Endpoint workflow
+## Endpoint workflow
  * /add/:id/data
    * write to cache
    * sleep 5 to imitate long DB write
