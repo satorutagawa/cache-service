@@ -1,12 +1,11 @@
-Cache service
+# Cache service
 
-Prerequisite:
-# * python (for tests)
+## Prerequisite:
 
-Install dependencies:
+## Install dependencies:
  * npm i
 
-Usage:
+## Usage:
  * npm run dev
 
 Env setup using this tutorial:
@@ -16,7 +15,7 @@ Env setup using this tutorial:
  * Database DAO
    * https://stackabuse.com/a-sqlite-tutorial-with-node-js/
 
-Features:
+## Features:
  * add items
  * remove items
  * fetch items
