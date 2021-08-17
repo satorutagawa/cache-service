@@ -34,30 +34,6 @@ function list_db() {
     curl -s ${URL}/list_db
 }
 
-function test_read_after_write_single() {
-    for i in {1..10}
-    do
-        add 1 &
-    done
-
-    sleep 1
-    
-    for i in {1..3}
-    do
-        fetch 1 &
-    done
-
-    delete 1 &
-    
-    for i in {1..3}
-    do
-        fetch 1 &
-    done
-
-    wait
-    list_db
-}
-
 function test_read_after_write_multi() {
     for i in {1..10}
     do
@@ -83,5 +59,4 @@ function test_read_after_write_multi() {
     list_db
 }
 
-test_read_after_write_single
-#test_read_after_write_multi
+test_read_after_write_multi

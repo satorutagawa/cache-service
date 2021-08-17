@@ -61,3 +61,13 @@
    * no guarantee a write is an atomic operation
      * prevent risk of reading partially written data
 
+## Tested Environment
+ * MacOS 11.4 running nodejs v14.17.4
+
+## Tests
+ * tests/unit_test.sh
+   * Synchronous test for basic operation
+ * tests/test1.sh
+   * Asynchronous read-after-write test using single id
+ * tests/test2.sh
+   * Asynchronous read-after-write test using multiple ids
