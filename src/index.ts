@@ -102,24 +102,24 @@ app.get( "/delete/:id", ( req, res ) => {
 someTable.createTable()
 .then(() => {
     console.log("Created Table")
+    
+    // load cache
+    someTable.getAll()
+    .then((rows: any) => {
+        rows.forEach((row: any) => {
+            cache.set_cache_with_lock(row.id, row.data)
+            .then((id: number) => {
+                console.log(`Cache loaded for: ${id}`)
+            })
+        })
+    })
+    .catch((err: Error) => {
+        console.log('Error loading cache: ')
+        console.log(JSON.stringify(err))
+    })    
 })
 .catch((err: Error) => {
     console.log('Error creating table: ')
-    console.log(JSON.stringify(err))
-})
-
-// load cache
-someTable.getAll()
-.then((rows: any) => {
-    rows.forEach((row: any) => {
-        cache.set_cache_with_lock(row.id, row.data)
-        .then((id: number) => {
-            console.log(`Cache loaded for: ${id}`)
-        })
-    })
-})
-.catch((err: Error) => {
-    console.log('Error loading cache: ')
     console.log(JSON.stringify(err))
 })
 
