@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -eux
+#set -x
+set -eu
 
 URL="localhost:4000"
 
@@ -29,19 +30,58 @@ function list() {
     curl -s ${URL}/list
 }
 
-for i in {1..3}
-do
-    add ${i} &
-    fetch ${i} &
-done
+function list_db() {
+    curl -s ${URL}/list_db
+}
 
-list
+function test_read_after_write_single() {
+    for i in {1..10}
+    do
+        add 1 &
+    done
 
-wait
-for i in {1..3}
-do
-    delete ${i} &
-done
+    sleep 1
+    
+    for i in {1..3}
+    do
+        fetch 1 &
+    done
 
-wait
-list
+    delete 1 &
+    
+    for i in {1..3}
+    do
+        fetch 1 &
+    done
+
+    wait
+    list_db
+}
+
+function test_read_after_write_multi() {
+    for i in {1..10}
+    do
+        add ${i} &
+    done
+
+    for i in {1..10}
+    do
+        fetch ${i} &
+    done
+
+    for i in {1..10}
+    do
+        delete ${i} &
+    done
+    
+    for i in {1..10}
+    do
+        fetch ${i} &
+    done
+
+    wait
+    list_db
+}
+
+test_read_after_write_single
+#test_read_after_write_multi

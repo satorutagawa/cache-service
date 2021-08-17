@@ -1,19 +1,5 @@
 # Cache service
-
-## Prerequisite:
-
-## Install dependencies:
- * npm i
-
-## Usage:
- * npm run dev
-
-## Env setup using this tutorial:
- * Initial setup
-   * https://bit.ly/3lIv7BU
-     * (Dockerization not done)
- * Database DAO
-   * https://stackabuse.com/a-sqlite-tutorial-with-node-js/
+ * A standalone caching service written in TypeScript
 
 ## Features:
  * add items
@@ -22,8 +8,22 @@
 
 ## Features not considered for assignment
  * Updating of data
- * Fetch of data based on key other than item_id
+ * Fetch of data based on key other than id
  * Check proper insert/delete
+ * Mechanism for handling data that does not fit in memory
+
+## Install dependencies:
+ * npm i
+
+## Usage:
+ * npm run dev
+
+## (Reference) Env was setup using this tutorial:
+ * Initial setup
+   * https://bit.ly/3lIv7BU
+     * (Dockerization not done)
+ * Database DAO
+   * https://stackabuse.com/a-sqlite-tutorial-with-node-js/
 
 ## Key Components
  * Database
@@ -34,31 +34,30 @@
    * Data Structure
      * dictionary with item_id as primary key
  * API endpoints
-   * GET /add/{item_id}/{data}
-     * Should be POST but GET used for simplicity
-   * GET /delete/{item_id}/
-     * Should be DELETE but GET used for simplicity
-   * GET /fetch/{item_id}/
-   * GET /list/
-     * returns array of item_ids
+   * GET /add/{id}/{data}
+     * (Should be POST but GET used for simplicity)
+     * Adds record to cache
+     * Adds record to DB after 3 sec
+   * GET /delete/{id}
+     * (Should be DELETE but GET used for simplicity)
+     * Deletes record from cache
+     * Deletes record from DB after 3 sec
+   * GET /fetch/{id}
+     * returns single data from cache
+   * GET /fetch_db/{id}
+     * returns single data from DB
+   * GET /list
+     * returns cache contents
+   * GET /list_db
+     * returns DB contents
 
 ## Main considerations
  * CAP Theorem
    * trade off between Consistency and Availability when Partition tolerance exists
      * Availability is chosen here
- * Lock cache during write
-   * read during write needs to be blocked
+       * Data in cache is changed first
+         * eventually in sync with Database (after 3 sec)
+ * Lock cache/db during read/write
+   * no guarantee a write is an atomic operation
+     * prevent risk of reading partially written data
 
-## Endpoint workflow
- * /add/:id/data
-   * write to cache
-   * sleep 5 to imitate long DB write
-   * write to DB
- * /list
-   * read from DB
- * /fetch/:id
-   * read id from cache
- * /delete
-   * delete from cache
-   * sleep 5 to imitate long DB write
-   * delete from DB

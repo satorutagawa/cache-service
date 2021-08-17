@@ -2,159 +2,127 @@ import express from 'express';
 
 const AppDAO = require('./dao')
 const SomeTable = require('./some_table')
+const DataCache = require('./cache')
+
 const dao = new AppDAO('./database.sqlite3')
 const someTable = new SomeTable(dao)
+const cache = new DataCache()
 
 const app = express();
-const AsyncLock = require('async-lock')
-var lock = new AsyncLock()
 
-let _cache: { [id: number]: string} = {};
-
-// sleep time expects milliseconds
-function sleep (time: number) {
-  return new Promise((resolve) => setTimeout(resolve, time));
-}
 
 app.get( "/", ( req, res ) => {
-  res.send( "Hello world!" );
+    res.send( "Hello world!" );
 } );
 
 app.get( "/add/:id/:data", ( req, res ) => {
-  let id: number = parseInt(req.params['id'])
-  let data: string = req.params['data']
-  console.log(id, data)
-  if (id in _cache) {
-    res.send( `Data already exists for ${id}`)
-  }
-  else {
-    _cache[id] = data
-
-    lock.acquire("key1", () => {
-      console.log('lock enter')
-      let dateTime = new Date()
-      console.log(`Sleep start: ${dateTime}`)
-      sleep(3000)
+    let id: number = parseInt(req.params['id'])
+    let data: string = req.params['data']
+    console.log(id, data)
+    if (id in cache._cache) {
+        res.send( `Data already exists for ${id}\n`)
+    }
+    else {
+        cache.set_cache_with_lock(id, data)
         .then(() => {
-          dateTime = new Date()
-          console.log(`Sleep End: ${dateTime}`)
-          someTable.insert(id, data)
-            .then(() => {
-              console.log('lock exit')
-              res.send( `Added ${id}: ${data}` );            
-            })
-            .catch((err: Error) => {
-              console.log('lock exit')            
-              res.send( `Data already exists for ${id}`)
+            someTable.insert_to_db_with_lock(id, data)
+            .then((result: string) => {
+                res.send(result)
             })
         })
-    })
-  }
-
+    }
 });
 
 app.get( "/list_db", ( req, res ) => {
-  console.log("Listing from DB")
+    console.log("Listing from DB")
 
-  someTable.getAll()
+    someTable.getAll()
     .then((rows: any) => {
-      res.send( rows );
+        res.send( rows );
     })
     .catch((err: Error) => {
-      console.log('Error: ')
-      console.log(JSON.stringify(err))
+        console.log('Error: ')
+        console.log(JSON.stringify(err))
     })
 });
 
 app.get( "/list", ( req, res ) => {
-  console.log("Listing from cache")
-  res.send(_cache)
+    cache.read_cache_all_with_lock()
+    .then((result: any) => {
+        console.log(result)
+        res.send(result)
+    })
 });
 
 app.get( "/fetch_db/:id", ( req, res ) => {
-  let id: number = parseInt(req.params['id'])
+    let id: number = parseInt(req.params['id'])
 
-  console.log(`Fetch ${id} from DB`)
+    console.log(`Fetch ${id} from DB`)
 
-  someTable.getById()
+    someTable.getById(id)
     .then((row: any) => {
-      res.send( row.data );
+        res.send( `${row.data}\n` );
     })
     .catch((err: Error) => {
-      console.log('Error: ')
-      console.log(JSON.stringify(err))
+        console.log('Error in fetch_db: ')
+        console.log(JSON.stringify(err))
     })
 });
 
 app.get( "/fetch/:id", ( req, res ) => {
-  let id: number = parseInt(req.params['id'])
+    let id: number = parseInt(req.params['id'])
 
-  console.log(`Fetch ${id}`)
-  if (id in _cache) {
-    res.send(_cache[id])  
-  }
-  else {
-    res.send(`No data for ${id}`)
-  }
+    console.log(`Fetch ${id}`)
+
+    cache.read_cache_with_lock(id)
+    .then((result: string) => {
+        res.send(result)
+    })
 
 });
 
-
 app.get( "/delete/:id", ( req, res ) => {
-  let id: number = parseInt(req.params['id'])
-  console.log(`Deleting ${id}`)
+    let id: number = parseInt(req.params['id'])
+    console.log(`Deleting ${id}`)
 
-  if (id in _cache) {
-    delete _cache[id]
-
-    lock.acquire("key1", () => {
-      console.log('lock enter')
-
-      let dateTime = new Date()
-      console.log(`Sleep start: ${dateTime}`)
-      sleep(3000)
-      .then(() => {
-        dateTime = new Date()
-        console.log(`Sleep End: ${dateTime}`)
-
-        someTable.delete(id)
+    if (id in cache._cache) {
+        cache.unset_cache_with_lock(id)
         .then(() => {
-          console.log('lock exit')
-          res.send(`Deleted ${id}`)
+            someTable.delete_from_db_with_lock(id)
+            .then((result: string) => {
+                res.send(result)
+            })
         })
-        .catch((err: Error) => {
-          console.log('Error: ')
-          console.log(JSON.stringify(err))
-        })
-      })
-    })
-  } else {
-    res.send(`Nothing to delete for ${id}`)
-  }
+    } else {
+        res.send(`Nothing to delete for ${id}\n`)
+    }
 
 });
 
 someTable.createTable()
-  .then(() => {
+.then(() => {
     console.log("Created Table")
-  })
-  .catch((err: Error) => {
-    console.log('Error: ')
+})
+.catch((err: Error) => {
+    console.log('Error creating table: ')
     console.log(JSON.stringify(err))
-  })
+})
 
 // load cache
 someTable.getAll()
-  .then((rows: any) => {
+.then((rows: any) => {
     rows.forEach((row: any) => {
-      _cache[row.id] = row.data
+        cache.set_cache_with_lock(row.id, row.data)
+        .then((id: number) => {
+            console.log(`Cache loaded for: ${id}`)
+        })
     })
-  })
-  .catch((err: Error) => {
-    console.log('Error: ')
+})
+.catch((err: Error) => {
+    console.log('Error loading cache: ')
     console.log(JSON.stringify(err))
-  })
+})
 
 app.listen(4000, () => {
-  console.log(`server running on port 4000`);
+    console.log(`server running on port 4000`);
 });
