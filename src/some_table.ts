@@ -55,11 +55,11 @@ class SomeTable {
     insert_to_db_with_lock(id: number, data: string) {
         return new Promise((resolve) => {
             this._lock.acquire("key2", () => {
-                console.log(`lock_db enter for ${id}`)
-                console.log(`Sleep start: ${new Date().toISOString()}`)
+                //console.log(`lock_db enter for ${id}`)
+                //console.log(`Sleep start: ${new Date().toISOString()}`)
                 sleep(3000)
                 .then(() => {
-                    console.log(`Sleep End: ${new Date().toISOString()}`)
+                    //console.log(`Sleep End: ${new Date().toISOString()}`)
 
                     this.insert(id, data)
                     .then(() => {
@@ -69,7 +69,7 @@ class SomeTable {
                         resolve( `Data already exists for ${id}\n`)
                     })
                 })
-                console.log(`lock_db exit for ${id}`)
+                //console.log(`lock_db exit for ${id}`)
             })
         })
     }
@@ -77,16 +77,16 @@ class SomeTable {
     delete_from_db_with_lock(id: number) {
         return new Promise((resolve) => {
             this._lock.acquire("key2", () => {
-                console.log(`lock_db enter for ${id}`)
+                //console.log(`lock_db enter for ${id}`)
 
-                console.log(`Sleep start: ${new Date().toISOString()}`)
+                //console.log(`Sleep start: ${new Date().toISOString()}`)
                 sleep(3000)
                 .then(() => {
-                    console.log(`Sleep End: ${new Date().toISOString()}`)
+                    //console.log(`Sleep End: ${new Date().toISOString()}`)
 
                     this.delete(id)
                     .then(() => {
-                        console.log('lock_db exit')
+                        //console.log('lock_db exit')
                         resolve(`Deleted ${id}\n`)
                     })
                     .catch((err: Error) => {

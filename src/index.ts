@@ -18,7 +18,7 @@ app.get( "/", ( req, res ) => {
 app.get( "/add/:id/:data", ( req, res ) => {
     let id: number = parseInt(req.params['id'])
     let data: string = req.params['data']
-    console.log(id, data)
+    console.log(`Adding ${id}, ${data}`)
     if (id in cache._cache) {
         res.send( `Data already exists for ${id}\n`)
     }

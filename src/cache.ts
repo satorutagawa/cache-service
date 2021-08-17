@@ -15,7 +15,7 @@ class DataCache {
 	set_cache_with_lock(id: number, data: string) {
 	    return new Promise((resolve) => {
     	    this._lock.acquire('key1', () => {
-			    console.log(`lock_cache enter for ${id}`)
+			    //console.log(`lock_cache enter for ${id}`)
 			    if (id in this._cache) {
 			    	console.log(`Already set for ${id}`)
 			        resolve(-1);
@@ -24,7 +24,7 @@ class DataCache {
 			      	this._cache[id] = data
 			        resolve(id);
 			    }
-   			    console.log(`lock_cache exit for ${id}`)
+   			    //console.log(`lock_cache exit for ${id}`)
 			})
 	    })
 	}
@@ -33,7 +33,7 @@ class DataCache {
 	unset_cache_with_lock(id: number) {
 	    return new Promise((resolve) => {
 	    	this._lock.acquire('key1', () => {
-			    console.log(`lock_cache enter for ${id}`)
+			    //console.log(`lock_cache enter for ${id}`)
 		      	if (id in this._cache) {
 		        	delete this._cache[id]
 		        	resolve(id)
@@ -41,7 +41,7 @@ class DataCache {
 		      	else {
 		        	resolve(id)
 		      	}
-		      	console.log(`lock_cache exit for ${id}`)
+		      	//console.log(`lock_cache exit for ${id}`)
 	    	})
 	  	})
 	}
@@ -49,14 +49,14 @@ class DataCache {
 	read_cache_with_lock(id: number) {
 	    return new Promise((resolve) => {
   	  		this._lock.acquire('key1', () => {
-			    console.log(`lock_cache enter for ${id}`)
+			    //console.log(`lock_cache enter for ${id}`)
 			    if (id in this._cache) {
 			    	resolve(`${this._cache[id]}\n`)
 			    }
 			    else {
 			        resolve(`No data for ${id}\n`)
 			    }
-			    console.log(`lock_cache exit for ${id}`)
+			    //console.log(`lock_cache exit for ${id}`)
 		    })
 		})
 	}
@@ -64,14 +64,14 @@ class DataCache {
 	read_cache_all_with_lock() {
 	    return new Promise((resolve) => {
   	  		this._lock.acquire('key1', () => {
-			    console.log(`lock_cache enter for all`)
+			    //console.log(`lock_cache enter for all`)
 			    if (this._cache) {
 			    	resolve(this._cache)
 			    }
 			    else {
 			        resolve(`No data in cache\n`)
 			    }
-			    console.log(`lock_cache exit for all`)
+			    //console.log(`lock_cache exit for all`)
 		    })
 		})
 	}
